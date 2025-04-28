@@ -1,0 +1,89 @@
+.content-first {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  &__label {
+    width: 100px;
+    font-weight: 500;
+  }
+
+  &__input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    flex: 1;
+  }
+
+  &__time-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+  }
+
+  &__separator {
+    font-weight: 500;
+  }
+}
+
+.course-list {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+
+  &_item {
+    display: flex;
+    gap: 10px;
+
+    &-index {
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #faebff;
+    }
+    &-name {
+      flex: 1;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #faebff;
+      cursor: pointer;
+    }
+  }
+}
+
+.add-course {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+
+  &__btn {
+    padding: 5px 10px;
+    color: white;
+    background-color: #478ecc;
+    font-size: 15px;
+  }
+}

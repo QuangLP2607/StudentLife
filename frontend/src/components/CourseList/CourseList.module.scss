@@ -1,0 +1,34 @@
+.course-list {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+
+  &_item {
+    display: flex;
+    gap: 10px;
+
+    &-index {
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #faebff;
+    }
+    &-name {
+      flex: 1;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #faebff;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+}

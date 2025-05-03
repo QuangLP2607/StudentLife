@@ -1,8 +1,8 @@
 .calendar {
   background: white;
   border-radius: 12px;
-  padding: 16px;
-  width: 300px;
+  padding: 5px;
+  width: 250px;
 
   &__header {
     display: flex;
@@ -10,77 +10,92 @@
     align-items: center;
     font-size: 16px;
     font-weight: bold;
-    margin-bottom: 10px;
+    cursor: default;
 
     &-btn {
       background: transparent;
       border: none;
       font-size: 1.2rem;
       cursor: pointer;
+      padding: 10px;
 
-      &--prev {
+      &--prev,
+      &--next {
         color: #555;
       }
 
       &--next {
-        color: #555;
         transform: rotate(180deg);
       }
     }
   }
 
-  &__weekdays,
-  &__days {
+  &__grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 4px;
     text-align: center;
   }
 
+  &__cell {
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: background 0.2s;
+  }
+
   &__weekday {
-    font-size: 14px;
+    font-weight: bold;
     color: #b3b3b3;
     white-space: nowrap;
+    cursor: default;
 
-    &--weekend {
+    &.weekend {
       color: #007bff;
     }
   }
 
   &__day {
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 14px;
+    cursor: pointer;
 
     &:hover {
       background: #eee;
-      cursor: pointer;
     }
 
-    &--outside {
+    &.outside {
       color: #ccc;
     }
 
-    &--today {
-      background: red;
-      color: white;
-      font-weight: bold;
+    &.today {
+      border: 1px solid #f5725b;
     }
 
-    &--weekend {
+    &.weekend {
       color: #007bff;
     }
 
     &.selected {
       background: #fc816c;
       color: white;
+      font-weight: bold;
+    }
+
+    &.outside {
+      color: #ccc;
     }
   }
 
   &__selected-date {
-    margin-top: 10px;
-    font-size: 14px;
     font-weight: bold;
-    color: #333;
+    color: white;
   }
+}
+
+.weekHighlighted {
+  background-color: #f7ac9e;
+  color: white;
 }

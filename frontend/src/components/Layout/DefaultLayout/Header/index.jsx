@@ -10,6 +10,7 @@ const cx = classNames.bind(styles);
 
 export default function Header() {
   const [showMenu, setShowMenu] = useState(false);
+  const [currentTime, setCurrentTime] = useState("");
   const navigate = useNavigate();
   const menuRef = useRef();
   const { user } = useContext(UserContext);
@@ -33,10 +34,38 @@ export default function Header() {
 
     document.addEventListener("mousedown", handleClickOutside);
 
+    // Cập nhật thời gian mỗi giây
+    const interval = setInterval(() => {
+      const now = new Date();
+      setCurrentTime(formatDate(now));
+    }, 1000); // Cập nhật mỗi giây
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      clearInterval(interval); // Dọn dẹp interval khi component bị unmount
     };
   }, []);
+
+  const formatDate = (date) => {
+    const days = [
+      "Chủ Nhật",
+      "Thứ 2",
+      "Thứ 3",
+      "Thứ 4",
+      "Thứ 5",
+      "Thứ 6",
+      "Thứ 7",
+    ];
+    const day = days[date.getDay()];
+    const formattedTime = date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const formattedDate = `${day}, ${date.getDate()}/${
+      date.getMonth() + 1
+    }/${date.getFullYear()}`;
+    return `⏰ ${formattedTime} - ${formattedDate}`;
+  };
 
   return (
     <div className={cx("header")}>
@@ -51,7 +80,7 @@ export default function Header() {
       {/* info */}
       <div className={cx("header__info")}>
         <div>📅 Tuần 3 - Kỳ 20242</div>
-        <div>⏰ 12:43 - Thứ 4, 3/2/2025</div>
+        <div>{currentTime}</div> {/* Hiển thị thời gian thực */}
       </div>
       {/* actions */}
       <div className={cx("header__actions")}>

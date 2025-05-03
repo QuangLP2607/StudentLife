@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { DefaultLayout } from "./components/Layout";
+import { DefaultLayout } from "@components/Layout";
 import { publicRoutes } from "./routes";
 import { UserProvider } from "./contexts/UserContext";
+
 function App() {
   return (
     <UserProvider>

@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "normalize.css";
-import GlobalStyles from "./components/GlobalStyles";
+import GlobalStyles from "@components/GlobalStyles";
 import App from "./App.jsx";
 
 createRoot(document.getElementById("root")).render(

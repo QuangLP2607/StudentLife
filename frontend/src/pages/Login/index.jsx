@@ -4,7 +4,8 @@ import classNames from "classnames/bind";
 import styles from "./Login.module.scss";
 import logo from "@/assets/logo1.png";
 import authService from "../../services/authService";
-import Alert from "../../components/Layout/Arlert";
+import Alert from "@components/Arlert";
+import { useAlert } from "../../hooks/useAlert";
 import { UserContext } from "../../contexts/UserContext";
 
 const cx = classNames.bind(styles);
@@ -15,14 +16,10 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
-  const [alert, setAlert] = useState({ message: "", type: "" });
+  const { alert, showAlert, clearAlert } = useAlert();
 
   const navigate = useNavigate();
   const { setUser } = useContext(UserContext);
-
-  const showAlert = (message, type = "success") => {
-    setAlert({ message, type });
-  };
 
   const handleLogin = async () => {
     if (!isValidEmail(email)) {
@@ -70,21 +67,21 @@ export default function Login() {
     return emailRegex.test(email);
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    isLogin ? handleLogin() : handleSignup();
+  };
+
   return (
     <div className={cx("login")}>
-      {alert.message && (
-        <Alert
-          message={alert.message}
-          type={alert.type}
-          onClose={() => setAlert({ message: "", type: "" })}
-        />
-      )}
+      <Alert alert={alert} clearAlert={clearAlert} />
 
       <div className={cx("login__form")}>
-        <div
+        <form
           className={cx("login__form-content", {
             "login__form-content--signup": !isLogin,
           })}
+          onSubmit={handleSubmit}
         >
           <div className={cx("login__title")}>
             {isLogin ? "Đăng nhập tài khoản" : "Đăng ký tài khoản"}
@@ -96,6 +93,8 @@ export default function Login() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
           />
           {!isLogin && (
             <input
@@ -104,6 +103,8 @@ export default function Login() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              required
+              autoComplete="username"
             />
           )}
           <input
@@ -112,6 +113,8 @@ export default function Login() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
           />
           {!isLogin && (
             <input
@@ -120,21 +123,21 @@ export default function Login() {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              autoComplete="new-password"
             />
           )}
 
-          <button
-            className={cx("login__button")}
-            onClick={isLogin ? handleLogin : handleSignup}
-          >
+          <button className={cx("login__button")} type="submit">
             {isLogin ? "Đăng nhập" : "Đăng ký"}
           </button>
-        </div>
+        </form>
 
         <div className={cx("login__form-side")}>
           <img className={cx("login__logo")} src={logo} alt="Logo" />
           <button
             className={cx("login__button")}
+            type="button"
             onClick={() => setIsLogin(!isLogin)}
           >
             {isLogin ? "Đăng ký" : "Đăng nhập"}

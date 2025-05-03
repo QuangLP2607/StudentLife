@@ -1,6 +1,6 @@
 import classNames from "classnames/bind";
 import styles from "./Home.module.scss";
-import Calendar from "../../components/Layout/Calendar";
+import Calendar from "@components/Calendar";
 import { useNavigate } from "react-router-dom";
 
 const cx = classNames.bind(styles);

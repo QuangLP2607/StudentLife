@@ -1,30 +1,17 @@
 const express = require("express");
-const { body } = require("express-validator");
-const authController = require("../controllers/authController");
-
 const router = express.Router();
+const authController = require("../controllers/authController");
+const { body } = require("express-validator");
 
-router.post(
-  "/signup",
-  [
-    body("name").notEmpty().withMessage("Tên không được để trống"),
-    body("email").isEmail().withMessage("Email không hợp lệ"),
-    body("password")
-      .isLength({ min: 6 })
-      .withMessage("Mật khẩu phải có ít nhất 6 ký tự"),
-  ],
-  authController.signup
-);
+router.post("/signup", authController.signup);
 
-router.post(
-  "/login",
-  [
-    body("email").isEmail().withMessage("Email không hợp lệ"),
-    body("password").notEmpty().withMessage("Mật khẩu không được để trống"),
-  ],
-  authController.login
-);
+router.post("/login", authController.login);
 
-router.post("/logout", authController.logout);
+router.post("/refresh-token", authController.refreshToken);
+
+router.post("/logout", (req, res) => {
+  res.clearCookie("refreshToken");
+  res.status(200).json({ message: "Đăng xuất thành công" });
+});
 
 module.exports = router;

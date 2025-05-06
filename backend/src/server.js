@@ -1,6 +1,6 @@
 require("dotenv").config();
 const app = require("./app");
-const { sequelize } = require("./config/database");
+const { sequelize } = require("./models");
 const PORT = process.env.PORT || 3000;
 
 sequelize
@@ -14,7 +14,7 @@ sequelize
     console.log("✅ Database đã được đồng bộ!");
 
     app.listen(PORT, () => {
-      console.log(`🚀 Server chạy tại http://localhost:${PORT}`);
+      console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
     });
   })
   .catch((err) => {

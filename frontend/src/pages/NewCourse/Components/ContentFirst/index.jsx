@@ -6,66 +6,60 @@ import WeekPicker from "@components/WeekPicker";
 const cx = classNames.bind(styles);
 
 export default function ContentFirst({
-  semesterData,
-  setSemesterData,
+  semester,
+  setSemester,
   onAddCourse,
   onEditCourse,
 }) {
-  // Hàm tính toán ngày kết thúc từ ngày bắt đầu và số tuần
-  const calculateEndDate = (startDate, weeks) => {
-    if (startDate && weeks) {
-      const start = new Date(startDate);
+  const calculateEndDate = (start_date, weeks) => {
+    if (start_date && weeks) {
+      const start = new Date(start_date);
       start.setDate(start.getDate() + weeks * 7);
       return start.toISOString().split("T")[0];
     }
     return "";
   };
 
-  // Hàm xử lý thay đổi tuần học (dùng cho WeekPicker)
   const handleWeekChange = (range) => {
-    const formattedStart = range.from.toISOString().split("T")[0]; // Lấy ngày bắt đầu của tuần
-    const newEndDate = calculateEndDate(formattedStart, semesterData.weeks); // Tính ngày kết thúc dựa trên số tuần
+    const formattedStart = range.from.toISOString().split("T")[0];
+    const newEndDate = calculateEndDate(formattedStart, semester.weeks);
 
-    setSemesterData({
-      ...semesterData,
-      startDate: formattedStart,
-      endDate: newEndDate,
+    setSemester({
+      ...semester,
+      start_date: formattedStart,
+      end_date: newEndDate,
     });
   };
 
-  // Hàm cập nhật dữ liệu cho kỳ học
   const updateSemesterField = (field, value) => {
-    setSemesterData({ ...semesterData, [field]: value });
+    setSemester({ ...semester, [field]: value });
   };
 
-  // Hàm thay đổi số tuần học
   const handleWeeksChange = (e) => {
     const newWeeks = parseInt(e.target.value);
-    const newEndDate = calculateEndDate(semesterData.startDate, newWeeks);
+    const newEndDate = calculateEndDate(semester.start_date, newWeeks);
 
-    setSemesterData({
-      ...semesterData,
+    setSemester({
+      ...semester,
       weeks: newWeeks,
-      endDate: newEndDate,
+      end_date: newEndDate,
     });
   };
 
   return (
     <div className={cx("content-first")}>
-      {/* Gọi WeekPicker để lấy ngày bắt đầu tuần */}
-      <h2>Thông tin kỳ học</h2>
+      <h2>Thông tin học kỳ</h2>
       <div className={cx("form-grid")}>
         <div className={cx("form-grid__row")}>
           <label className={cx("form-grid__label")}>Học kỳ:</label>
           <input
             className={cx("form-grid__input")}
             placeholder="Nhập học kỳ"
-            value={semesterData.semester}
-            onChange={(e) => updateSemesterField("semester", e.target.value)}
+            value={semester.name}
+            onChange={(e) => updateSemesterField("name", e.target.value)}
           />
         </div>
 
-        {/* Thời gian bắt đầu và kết thúc được thay thế bằng WeekPicker */}
         <div className={cx("form-grid__row")}>
           <label className={cx("form-grid__label")}>Thời gian:</label>
           <div className={cx("form-grid__time-range")}>
@@ -74,7 +68,7 @@ export default function ContentFirst({
             <input
               type="date"
               className={cx("form-grid__input")}
-              value={semesterData.endDate}
+              value={semester.end_date}
               readOnly
             />
           </div>
@@ -85,17 +79,14 @@ export default function ContentFirst({
           <input
             type="number"
             className={cx("form-grid__input")}
-            value={semesterData.weeks}
+            value={semester.weeks}
             onChange={handleWeeksChange}
             min="1"
           />
         </div>
       </div>
       <h2>Danh sách học phần</h2>
-      <CourseList
-        semesterData={semesterData}
-        handleClickCourse={onEditCourse}
-      />
+      <CourseList semester={semester} handleClickCourse={onEditCourse} />
       <div className={cx("add-course")}>
         <button className={cx("add-course__btn")} onClick={onAddCourse}>
           Thêm học phần +

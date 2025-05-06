@@ -1,12 +1,12 @@
 export function getLessonDates({
-  startDate,
+  start_date,
   weeks,
   weekday,
   weekType,
   customWeeks,
 }) {
   const result = [];
-  const start = new Date(startDate);
+  const start = new Date(start_date);
   const dayOffset = weekday - start.getDay();
   const firstLessonDate = new Date(start);
   firstLessonDate.setDate(

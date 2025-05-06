@@ -14,22 +14,22 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Posts", // Tên bảng tham chiếu
-          key: "id", // Khóa chính của bảng tham chiếu
+          model: "Posts",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
       file_url: {
         type: Sequelize.STRING(255),
-        allowNull: false, // Đường dẫn file bắt buộc phải có
+        allowNull: false,
       },
       uploaded_by: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Users", // Tên bảng tham chiếu
-          key: "id", // Khóa chính của bảng tham chiếu
+          model: "Users",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",

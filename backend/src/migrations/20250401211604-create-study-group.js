@@ -14,8 +14,8 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Courses", // Tên bảng tham chiếu
-          key: "id", // Khóa chính của bảng tham chiếu
+          model: "Courses",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",

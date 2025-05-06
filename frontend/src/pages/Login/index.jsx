@@ -22,19 +22,16 @@ export default function Login() {
   const { setUser } = useContext(UserContext);
 
   const handleLogin = async () => {
-    if (!isValidEmail(email)) {
-      showAlert("Email không hợp lệ!", "error");
-      return;
-    }
+    if (!isValidEmail(email)) return showAlert("Email không hợp lệ!", "error");
 
     try {
       const response = await authService.login(email, password);
-      const { token, user } = response.data;
+      const { accessToken, user } = response.data.data;
 
-      localStorage.setItem("token", token || "");
+      localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("user", JSON.stringify(user));
-      setUser(user);
 
+      setUser(user);
       showAlert("Đăng nhập thành công!", "success");
       setTimeout(() => navigate("/"), 2000);
     } catch (error) {
@@ -43,15 +40,10 @@ export default function Login() {
   };
 
   const handleSignup = async () => {
-    if (!isValidEmail(email)) {
-      showAlert("Email không hợp lệ!", "error");
-      return;
-    }
+    if (!isValidEmail(email)) return showAlert("Email không hợp lệ!", "error");
 
-    if (password !== confirmPassword) {
-      showAlert("Mật khẩu xác nhận không khớp!", "error");
-      return;
-    }
+    if (password !== confirmPassword)
+      return showAlert("Mật khẩu xác nhận không khớp!", "error");
 
     try {
       await authService.signup(username, email, password);

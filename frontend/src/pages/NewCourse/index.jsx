@@ -1,40 +1,62 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Alert from "@components/Arlert";
+import { useAlert } from "../../hooks/useAlert";
 import classNames from "classnames/bind";
 import CourseCalendar from "@components/CourseCalendar";
 import ContentFirst from "./Components/ContentFirst";
 import ContentSecond from "./Components/ContentSecond";
 import styles from "./NewCourse.module.scss";
-import {
-  initialSemesterData,
-  initialCourse,
-} from "../../constants/initialState";
+import { initialSemester, initialCourse } from "../../constants/initialState";
+import semesterService from "../../services/semesterService";
 
 const cx = classNames.bind(styles);
 
 export default function NewCourses() {
-  const [semesterData, setSemesterData] = useState(initialSemesterData);
+  const [semester, setSemester] = useState(initialSemester);
   const [course, setCourse] = useState(initialCourse);
-
-  const [showForm, setShowForm] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const { alert, showAlert, clearAlert } = useAlert();
+  const navigate = useNavigate();
 
-  const showAlert = (message, type = "success") => {
-    alert(`${type}: ${message}`);
-  };
-
-  const handleSaveCourse = () => {
-    const {
-      name,
-      department,
-      schedule: { startTime, endTime, day, location },
-    } = course;
-
-    if (!name || !department || !startTime || !endTime || !day || !location) {
-      showAlert("Vui lòng điền đầy đủ thông tin!", "error");
+  const handleSaveSemester = async () => {
+    if (
+      !semester.name ||
+      !semester.start_date ||
+      !semester.end_date ||
+      !semester.weeks
+    ) {
+      showAlert("Vui lòng điền đầy đủ thông tin học kỳ!", "error");
       return;
     }
 
-    setSemesterData((prev) => {
+    try {
+      await semesterService.addSemester(semester);
+      showAlert("Lưu học kỳ thành công!", "success");
+      localStorage.setItem("semester", JSON.stringify(semester));
+      setTimeout(() => navigate("/"), 2000);
+    } catch (error) {
+      showAlert("Có lỗi xảy ra khi lưu học kỳ!", "error");
+      console.error(error);
+    }
+  };
+
+  const handleSaveCourse = () => {
+    const { name, schedules } = course;
+    if (!name) return showAlert("Vui lòng điền đầy đủ thông tin!", "error");
+    if (!schedules.length)
+      return showAlert("Vui lòng thêm ít nhất một lịch học!", "error");
+
+    for (let i = 0; i < schedules.length; i++) {
+      const { start_time, end_time, day, location } = schedules[i];
+      if (!start_time || !end_time || !day || !location) {
+        showAlert(`Lịch học ${i + 1} chưa đầy đủ thông tin!`, "error");
+        return;
+      }
+    }
+
+    setSemester((prev) => {
       const currentCourses = prev.courses || [];
       let updatedCourses;
 
@@ -53,24 +75,23 @@ export default function NewCourses() {
       };
     });
 
-    setCourse(initialCourse);
-
     setShowForm(false);
+    setCourse(initialCourse);
     setEditingCourse(null);
     showAlert("Lưu học phần thành công!", "success");
   };
 
   return (
     <div className={cx("new-course")}>
-      <CourseCalendar semesterData={semesterData} />
-
+      <CourseCalendar semester={semester} />
       <div className={cx("new-course__content")}>
         <ContentFirst
-          semesterData={semesterData}
-          setSemesterData={setSemesterData}
+          semester={semester}
+          setSemester={setSemester}
           onAddCourse={() => {
-            setShowForm(true);
+            setCourse(initialCourse);
             setEditingCourse(null);
+            setShowForm(true);
           }}
           onEditCourse={(course) => {
             setEditingCourse(course);
@@ -89,8 +110,10 @@ export default function NewCourses() {
           course={course}
           setCourse={setCourse}
           handleSaveCourse={handleSaveCourse}
+          handleSaveSemester={handleSaveSemester}
         />
       </div>
+      <Alert alert={alert} clearAlert={clearAlert} />
     </div>
   );
 }

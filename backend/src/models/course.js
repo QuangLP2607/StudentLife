@@ -8,6 +8,13 @@ module.exports = (sequelize, DataTypes) => {
       Course.belongsTo(models.Semester, {
         foreignKey: "semester_id",
         as: "semester",
+        onDelete: "CASCADE",
+      });
+
+      // Mỗi Course có nhiều Schedule
+      Course.hasMany(models.Schedule, {
+        foreignKey: "course_id",
+        as: "schedules",
       });
     }
   }
@@ -20,10 +27,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       name: {
         type: DataTypes.STRING(100),
-        allowNull: false,
-      },
-      type: {
-        type: DataTypes.ENUM("theory", "practice", "project"),
         allowNull: false,
       },
     },

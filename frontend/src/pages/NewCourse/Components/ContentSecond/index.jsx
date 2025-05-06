@@ -1,6 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import classNames from "classnames/bind";
+import { Icon } from "@iconify/react";
 import styles from "./ContentSecond.module.scss";
+import CustomDropdown from "@components/CustomDropdown";
+import { initialSchedule } from "../../../../constants/initialState";
 
 const cx = classNames.bind(styles);
 
@@ -11,12 +14,32 @@ export default function ContentSecond({
   course,
   setCourse,
   handleSaveCourse,
+  handleSaveSemester,
 }) {
   const title = editingCourse ? "Thông tin học phần" : "Thêm học phần";
+  const [activeTab, setActiveTab] = useState(0);
+
+  const dayOptions = [
+    { value: "1", label: "Thứ 2" },
+    { value: "2", label: "Thứ 3" },
+    { value: "3", label: "Thứ 4" },
+    { value: "4", label: "Thứ 5" },
+    { value: "5", label: "Thứ 6" },
+    { value: "6", label: "Thứ 7" },
+    { value: "0", label: "Chủ nhật" },
+  ];
+
+  const weekTypeOptions = [
+    { value: "weekly", label: "Hằng tuần" },
+    { value: "even", label: "Tuần chẵn" },
+    { value: "odd", label: "Tuần lẻ" },
+    { value: "custom", label: "Tùy chỉnh" },
+  ];
 
   useEffect(() => {
     if (editingCourse) {
-      setCourse(editingCourse);
+      setCourse({ ...editingCourse, schedules: editingCourse.schedules || [] });
+      setActiveTab(0);
     }
   }, [editingCourse, setCourse]);
 
@@ -24,14 +47,24 @@ export default function ContentSecond({
     setCourse({ ...course, [field]: value });
   };
 
-  const onChangeScheduleField = (field, value) => {
+  const onChangeScheduleField = (index, field, value) => {
+    const updatedSchedules = [...course.schedules];
+    updatedSchedules[index] = { ...updatedSchedules[index], [field]: value };
+    setCourse({ ...course, schedules: updatedSchedules });
+  };
+
+  const handleAddSchedule = () => {
     setCourse({
       ...course,
-      schedule: {
-        ...course.schedule,
-        [field]: value,
-      },
+      schedules: [...course.schedules, initialSchedule],
     });
+    setActiveTab(course.schedules.length);
+  };
+
+  const handleRemoveSchedule = (index) => {
+    const updatedSchedules = course.schedules.filter((_, i) => i !== index);
+    setCourse({ ...course, schedules: updatedSchedules });
+    setActiveTab(Math.max(0, updatedSchedules.length - 1));
   };
 
   return (
@@ -39,7 +72,6 @@ export default function ContentSecond({
       {showForm && (
         <>
           <h2>{title}</h2>
-
           <div className={cx("content-second__details")}>
             <div className={cx("form-grid")}>
               <div className={cx("form-grid__row")}>
@@ -51,94 +83,131 @@ export default function ContentSecond({
                   placeholder="Nhập tên môn học"
                 />
               </div>
-
-              <div className={cx("form-grid__row")}>
-                <label className={cx("form-grid__label")}>Khoa:</label>
-                <input
-                  className={cx("form-grid__input")}
-                  value={course.department}
-                  onChange={(e) => onChangeField("department", e.target.value)}
-                  placeholder="Nhập tên khoa"
-                />
-              </div>
             </div>
 
             <hr />
-            <div>Lịch học</div>
-            <br />
 
-            <div className={cx("form-grid")}>
-              <div className={cx("form-grid__row")}>
-                <input
-                  type="time"
-                  className={cx("form-grid__input")}
-                  value={course.schedule.startTime}
-                  onChange={(e) =>
-                    onChangeScheduleField("startTime", e.target.value)
-                  }
-                />
-                <input
-                  type="time"
-                  className={cx("form-grid__input")}
-                  value={course.schedule.endTime}
-                  onChange={(e) =>
-                    onChangeScheduleField("endTime", e.target.value)
-                  }
-                />
-                <select
-                  className={cx("form-grid__input")}
-                  value={course.schedule.day}
-                  onChange={(e) => onChangeScheduleField("day", e.target.value)}
+            {/* Lịch học Tabs */}
+            <div className={cx("tabs")}>
+              <div style={{ marginRight: "10px" }}>Lịch học</div>
+              {course.schedules.map((_, index) => (
+                <button
+                  key={index}
+                  className={cx("tabs__item-button", {
+                    "tabs__item-button--active": activeTab === index,
+                  })}
+                  onClick={() => setActiveTab(index)}
                 >
-                  <option value="">Chọn thứ</option>
-                  <option value="1">Thứ 2</option>
-                  <option value="2">Thứ 3</option>
-                  <option value="3">Thứ 4</option>
-                  <option value="4">Thứ 5</option>
-                  <option value="5">Thứ 6</option>
-                  <option value="6">Thứ 7</option>
-                  <option value="0">Chủ nhật</option>
-                </select>
-              </div>
-
-              <div className={cx("form-grid__row")}>
-                <select
-                  className={cx("form-grid__input")}
-                  value={course.schedule.weekType}
-                  onChange={(e) =>
-                    onChangeScheduleField("weekType", e.target.value)
-                  }
-                >
-                  <option value="weekly">Hằng tuần</option>
-                  <option value="even">Tuần chẵn</option>
-                  <option value="odd">Tuần lẻ</option>
-                  <option value="custom">Tùy chỉnh</option>
-                </select>
-
-                {course.schedule.weekType === "custom" && (
-                  <input
-                    type="text"
-                    className={cx("form-grid__input")}
-                    value={course.schedule.customWeeks}
-                    onChange={(e) =>
-                      onChangeScheduleField("customWeeks", e.target.value)
-                    }
-                    placeholder="VD: 1,12-16"
+                  {index + 1}
+                  {course.schedules.length > 1 && (
+                    <span
+                      className={cx("tabs__item-button-remove")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveSchedule(index);
+                      }}
+                    >
+                      <Icon
+                        className={cx("tabs__item-button-remove-icon")}
+                        icon="mi:delete"
+                      />
+                    </span>
+                  )}
+                </button>
+              ))}
+              {course.schedules.length < 5 && (
+                <button className={cx("tabs__add")} onClick={handleAddSchedule}>
+                  <Icon
+                    className={cx("tabs__add-icon")}
+                    icon="icon-park-outline:add"
                   />
-                )}
-              </div>
+                </button>
+              )}
+            </div>
 
-              <div className={cx("form-grid__row")}>
-                <input
-                  type="text"
-                  className={cx("form-grid__input")}
-                  value={course.schedule.location}
-                  onChange={(e) =>
-                    onChangeScheduleField("location", e.target.value)
-                  }
-                  placeholder="Nhập địa điểm"
-                />
-              </div>
+            {/* Form Lịch học */}
+            <div className={cx("form-grid")}>
+              {course.schedules.length > 0 && (
+                <>
+                  <div className={cx("form-grid__row")}>
+                    <input
+                      type="time"
+                      className={cx("form-grid__input")}
+                      value={course.schedules[activeTab]?.start_time || ""}
+                      onChange={(e) =>
+                        onChangeScheduleField(
+                          activeTab,
+                          "start_time",
+                          e.target.value
+                        )
+                      }
+                    />
+                    <input
+                      type="time"
+                      className={cx("form-grid__input")}
+                      value={course.schedules[activeTab]?.end_time || ""}
+                      onChange={(e) =>
+                        onChangeScheduleField(
+                          activeTab,
+                          "end_time",
+                          e.target.value
+                        )
+                      }
+                    />
+                    <CustomDropdown
+                      placeholder="Chọn thứ"
+                      options={dayOptions}
+                      selectedValue={course.schedules[activeTab]?.day || ""}
+                      onChange={(value) =>
+                        onChangeScheduleField(activeTab, "day", value)
+                      }
+                    />
+                  </div>
+
+                  <CustomDropdown
+                    placeholder="Chọn tuần học"
+                    options={weekTypeOptions}
+                    selectedValue={course.schedules[activeTab]?.week_type || ""}
+                    onChange={(value) =>
+                      onChangeScheduleField(activeTab, "week_type", value)
+                    }
+                  />
+
+                  {course.schedules[activeTab]?.week_type === "custom" && (
+                    <div className={cx("form-grid__row")}>
+                      <input
+                        type="text"
+                        className={cx("form-grid__input")}
+                        value={course.schedules[activeTab]?.custom_weeks || ""}
+                        onChange={(e) =>
+                          onChangeScheduleField(
+                            activeTab,
+                            "custom_weeks",
+                            e.target.value
+                          )
+                        }
+                        placeholder="VD: 1,12-16"
+                      />
+                    </div>
+                  )}
+
+                  <div className={cx("form-grid__row")}>
+                    <input
+                      type="text"
+                      className={cx("form-grid__input")}
+                      value={course.schedules[activeTab]?.location || ""}
+                      onChange={(e) =>
+                        onChangeScheduleField(
+                          activeTab,
+                          "location",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Nhập địa điểm"
+                    />
+                  </div>
+                </>
+              )}
             </div>
 
             <div className={cx("add_subject")}>
@@ -154,7 +223,10 @@ export default function ContentSecond({
       )}
 
       <div className={cx("content-second__actions")}>
-        <button className={cx("content-second__actions-save")}>
+        <button
+          className={cx("content-second__actions-save")}
+          onClick={handleSaveSemester}
+        >
           Lưu học kỳ
         </button>
         <button

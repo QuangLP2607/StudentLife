@@ -4,8 +4,7 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Semester extends Model {
     static associate(models) {
-      // define association here
-      // Ví dụ: một semester có nhiều courses
+      // Một semester có nhiều courses
       Semester.hasMany(models.Course, {
         foreignKey: "semester_id",
         as: "courses",

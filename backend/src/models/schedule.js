@@ -2,17 +2,18 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class CourseSchedule extends Model {
+  class Schedule extends Model {
     static associate(models) {
       // Một course schedule thuộc về một course
-      CourseSchedule.belongsTo(models.Course, {
+      Schedule.belongsTo(models.Course, {
         foreignKey: "course_id",
         as: "course",
+        onDelete: "CASCADE",
       });
     }
   }
 
-  CourseSchedule.init(
+  Schedule.init(
     {
       course_id: {
         type: DataTypes.INTEGER,
@@ -26,9 +27,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TIME,
         allowNull: false,
       },
-      weeks: {
-        type: DataTypes.JSON,
+      day: {
+        type: DataTypes.STRING(20),
         allowNull: false,
+      },
+      week_type: {
+        type: DataTypes.ENUM("weekly", "odd", "even", "custom"),
+        allowNull: false,
+      },
+      custom_weeks: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       location: {
         type: DataTypes.STRING(255),
@@ -37,9 +46,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "CourseSchedule",
+      modelName: "Schedule",
     }
   );
 
-  return CourseSchedule;
+  return Schedule;
 };

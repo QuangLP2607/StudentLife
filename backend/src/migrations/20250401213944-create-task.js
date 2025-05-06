@@ -14,8 +14,8 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "StudyGroups", // Tên bảng tham chiếu
-          key: "id", // Khóa chính của bảng tham chiếu
+          model: "StudyGroups",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
@@ -31,14 +31,14 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Users", // Tên bảng tham chiếu
-          key: "id", // Khóa chính của bảng tham chiếu
+          model: "Users",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
       deadline: {
-        type: Sequelize.DATE, // Dùng Sequelize.DATE thay vì Sequelize.DATETIME
+        type: Sequelize.DATE,
         allowNull: false,
       },
       status: {

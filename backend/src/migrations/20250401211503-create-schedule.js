@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("CourseSchedules", {
+    await queryInterface.createTable("Schedules", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -14,8 +14,8 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Courses", // Tên bảng tham chiếu
-          key: "id", // Khóa chính của bảng tham chiếu
+          model: "Courses",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
@@ -28,9 +28,17 @@ module.exports = {
         type: Sequelize.TIME,
         allowNull: false,
       },
-      weeks: {
-        type: Sequelize.JSON, // Dùng JSON cho danh sách các tuần
+      day: {
+        type: Sequelize.STRING(20),
         allowNull: false,
+      },
+      week_type: {
+        type: Sequelize.ENUM("weekly", "odd", "even", "custom"),
+        allowNull: false,
+      },
+      custom_weeks: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       location: {
         type: Sequelize.STRING(255),
@@ -52,6 +60,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("CourseSchedules");
+    await queryInterface.dropTable("Schedules");
   },
 };

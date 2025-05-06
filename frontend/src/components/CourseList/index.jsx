@@ -4,10 +4,10 @@ import { Icon } from "@iconify/react";
 
 const cx = classNames.bind(styles);
 
-export default function CourseList({ semesterData, handleClickCourse }) {
+export default function CourseList({ semester, handleClickCourse }) {
   return (
     <div className={cx("course-list")}>
-      {semesterData.courses.map((course, index) => (
+      {semester.courses.map((course, index) => (
         <div
           key={index}
           className={cx("course-list_item")}

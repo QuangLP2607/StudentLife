@@ -14,18 +14,14 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Semesters", // Tên bảng tham chiếu
-          key: "id", // Khóa chính của bảng tham chiếu
+          model: "Semesters",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
       name: {
         type: Sequelize.STRING(100),
-        allowNull: false,
-      },
-      type: {
-        type: Sequelize.ENUM("theory", "practice", "project"), // Enum cho loại môn học
         allowNull: false,
       },
       createdAt: {

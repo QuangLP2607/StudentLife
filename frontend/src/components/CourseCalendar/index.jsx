@@ -5,7 +5,7 @@ import Calendar from "../Calendar";
 
 const cx = classNames.bind(styles);
 
-export default function CourseCalendar({ semesterData }) {
+export default function CourseCalendar({ semester }) {
   const [selectedCourses, setSelectedCourses] = useState([]);
 
   function parseWeekRanges(input) {
@@ -34,7 +34,7 @@ export default function CourseCalendar({ semesterData }) {
     const selectedDateParts = dateStr.split("-");
     const formattedSelectedDate = `${selectedDateParts[2]}-${selectedDateParts[1]}-${selectedDateParts[0]}`;
     const selectedDateObj = new Date(formattedSelectedDate);
-    const startDateObj = new Date(semesterData.startDate);
+    const startDateObj = new Date(semester.start_date);
 
     if (isNaN(selectedDateObj.getTime()) || isNaN(startDateObj.getTime())) {
       console.error("Ngày không hợp lệ");
@@ -52,31 +52,56 @@ export default function CourseCalendar({ semesterData }) {
     const diffDays = Math.floor(diffMillis / (1000 * 60 * 60 * 24));
     const weekNumber = Math.floor(diffDays / 7) + 1;
 
-    const coursesForSelectedWeek = semesterData.courses.filter((course) => {
-      const courseDayOfWeek = parseInt(course.schedule.day);
-      const selectedDayOfWeek = selectedDateObj.getDay();
+    const selectedDayOfWeek = dayOfWeek;
 
-      if (courseDayOfWeek !== selectedDayOfWeek) return false;
+    const matchedSchedules = [];
 
-      switch (course.schedule.weekType) {
-        case "weekly":
-          return true;
-        case "even":
-          return weekNumber % 2 === 0;
-        case "odd":
-          return weekNumber % 2 !== 0;
-        case "custom": {
-          const customWeeksStr = course.schedule.customWeeks;
-          const validWeeks = parseWeekRanges(customWeeksStr);
-          return validWeeks.includes(weekNumber);
+    semester.courses.forEach((course) => {
+      course.schedules.forEach((s, idx) => {
+        const courseDayOfWeek = parseInt(s.day);
+        if (courseDayOfWeek !== selectedDayOfWeek) return;
+
+        let isMatch = false;
+        switch (s.week_type) {
+          case "weekly":
+            isMatch = true;
+            break;
+          case "even":
+            isMatch = weekNumber % 2 === 0;
+            break;
+          case "odd":
+            isMatch = weekNumber % 2 !== 0;
+            break;
+          case "custom": {
+            const validWeeks = parseWeekRanges(s.custom_weeks);
+            isMatch = validWeeks.includes(weekNumber);
+            break;
+          }
+          default:
+            break;
         }
 
-        default:
-          return false;
-      }
+        if (isMatch) {
+          matchedSchedules.push({
+            id: `${course.id}-${idx}`,
+            name: course.name,
+            startTime: s.start_time,
+            endTime: s.end_time,
+            location: s.location,
+          });
+        }
+      });
     });
 
-    setSelectedCourses(coursesForSelectedWeek);
+    // Sắp xếp matchedSchedules theo startTime
+    matchedSchedules.sort((a, b) => {
+      const [aHour, aMinute] = a.startTime.split(":").map(Number);
+      const [bHour, bMinute] = b.startTime.split(":").map(Number);
+
+      return aHour !== bHour ? aHour - bHour : aMinute - bMinute;
+    });
+
+    setSelectedCourses(matchedSchedules);
   };
 
   return (
@@ -90,13 +115,12 @@ export default function CourseCalendar({ semesterData }) {
           {selectedCourses.map((course) => (
             <div key={course.id} className={cx("schedule")}>
               <div className={cx("schedule__time")}>
-                <div>{course.schedule.startTime}</div>|
-                <div>{course.schedule.endTime}</div>
+                <div>{course.startTime}</div>|<div>{course.endTime}</div>
               </div>
               <div className={cx("schedule__info")}>
                 <div className={cx("schedule__info-name")}>{course.name}</div>
                 <div className={cx("schedule__info-location")}>
-                  Địa điểm: {course.schedule.location}
+                  Địa điểm: {course.location}
                 </div>
               </div>
             </div>

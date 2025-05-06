@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       deadline: {
-        type: DataTypes.DATE, // Đảm bảo rằng kiểu là DATE
+        type: DataTypes.DATE,
         allowNull: false,
       },
       status: {

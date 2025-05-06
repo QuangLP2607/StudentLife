@@ -12,20 +12,20 @@ module.exports = {
       },
       group_id: {
         type: Sequelize.INTEGER,
-        allowNull: true, // Cho phép NULL vì bài đăng không nhất thiết phải thuộc về nhóm học
+        allowNull: true,
         references: {
-          model: "StudyGroups", // Tên bảng tham chiếu
-          key: "id", // Khóa chính của bảng tham chiếu
+          model: "StudyGroups",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "SET NULL",
       },
       course_id: {
         type: Sequelize.INTEGER,
-        allowNull: true, // Cho phép NULL vì bài đăng không nhất thiết phải thuộc về môn học
+        allowNull: true,
         references: {
-          model: "Courses", // Tên bảng tham chiếu
-          key: "id", // Khóa chính của bảng tham chiếu
+          model: "Courses",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "SET NULL",
@@ -34,8 +34,8 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Users", // Tên bảng tham chiếu
-          key: "id", // Khóa chính của bảng tham chiếu
+          model: "Users",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
@@ -50,7 +50,7 @@ module.exports = {
       },
       week: {
         type: Sequelize.INTEGER,
-        allowNull: true, // Tuần học có thể không bắt buộc
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,

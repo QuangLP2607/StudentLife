@@ -14,8 +14,8 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "StudyGroups", // Tên bảng tham chiếu
-          key: "id", // Khóa chính của bảng tham chiếu
+          model: "StudyGroups",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
@@ -24,16 +24,16 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Users", // Tên bảng tham chiếu
-          key: "id", // Khóa chính của bảng tham chiếu
+          model: "Users",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
       role: {
-        type: Sequelize.ENUM("member", "admin", "owner"), // Enum cho quyền trong nhóm
+        type: Sequelize.ENUM("member", "admin", "owner"),
         allowNull: false,
-        defaultValue: "member", // Giá trị mặc định
+        defaultValue: "member",
       },
       createdAt: {
         allowNull: false,

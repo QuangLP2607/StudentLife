@@ -1,11 +1,14 @@
+import { useContext } from "react";
 import classNames from "classnames/bind";
 import styles from "./Home.module.scss";
-import Calendar from "@components/Calendar";
+import CourseCalendar from "@components/CourseCalendar";
 import { useNavigate } from "react-router-dom";
+import { SemesterContext } from "../../contexts/SemesterContext";
 
 const cx = classNames.bind(styles);
 
 export default function Home() {
+  const { semester } = useContext(SemesterContext);
   const navigate = useNavigate();
 
   const handleStart = () => {
@@ -14,9 +17,7 @@ export default function Home() {
 
   return (
     <div className={cx("home")}>
-      <div className={cx("home__calendar")}>
-        <Calendar />
-      </div>
+      <CourseCalendar semester={semester} />
       <div className={cx("home__content")}>
         <h2>Chào mừng bạn đến với ứng dụng hỗ trợ sinh viên!</h2>
         <span>

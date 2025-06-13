@@ -1,0 +1,139 @@
+.content-second {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+
+  &__details {
+    border: 1px solid gray;
+    border-radius: 10px;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  &__actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: auto;
+    gap: 20px;
+
+    &-save {
+      color: #ffffff;
+      background-color: #8ac44b;
+    }
+
+    &-cancel {
+      color: #ffffff;
+      background-color: #f04438;
+    }
+  }
+}
+
+.add_subject {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+
+  &__btn {
+    color: #ffffff;
+    background-color: #8ac44b;
+  }
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  &__label {
+    width: 100px;
+    font-weight: 500;
+  }
+
+  &__input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    flex: 1;
+  }
+
+  &__btn-add {
+    color: white;
+    background-color: #8ac44b;
+  }
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  margin: 10px;
+
+  &__item {
+    &-button {
+      background-color: white;
+      border: none;
+      border-bottom: 1px solid #cecece;
+      border-radius: 0;
+      padding: 5px 5px 5px 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+
+      &:hover {
+        background-color: transparent;
+        color: #1690ff;
+      }
+
+      &--active {
+        color: #1690ff;
+        font-weight: bold;
+        border-bottom: 2px solid #1690ff;
+      }
+
+      &-remove {
+        background-color: transparent;
+        padding: 0;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &-icon {
+          color: gray;
+
+          &:hover {
+            background-color: transparent;
+            color: #ff1616;
+          }
+        }
+      }
+    }
+  }
+
+  &__add {
+    margin-left: 10px;
+    background-color: transparent;
+    padding: 0;
+    border: none;
+
+    &-icon {
+      color: gray;
+
+      font-size: 25px;
+      &:hover {
+        background-color: transparent;
+        color: #1690ff;
+      }
+    }
+  }
+}

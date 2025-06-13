@@ -1,0 +1,46 @@
+.course-calendar {
+  flex-direction: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 10px 20px;
+
+  &__daily-courses {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+.schedule {
+  background-color: #ffcece;
+  border-radius: 5px;
+  padding: 5px 20px;
+  display: flex;
+  gap: 20px;
+
+  &__time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 12px;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    &-name {
+      font-weight: bold;
+      color: rgb(97, 35, 35);
+    }
+
+    &-location {
+      font-size: 13px;
+    }
+  }
+}

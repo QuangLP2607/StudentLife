@@ -1,0 +1,14 @@
+.new-course {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f0f0f0;
+
+  &__content {
+    background-color: #ffffff;
+    border-radius: 10px;
+    flex: 3;
+    display: flex;
+  }
+}

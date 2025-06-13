@@ -1,0 +1,69 @@
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 5px 0 5px 20px;
+  min-width: 250px;
+  max-width: 350px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  color: #fff;
+  border-radius: 5px;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  &.success {
+    color: #77bd59;
+    background-color: #ecf5e7;
+
+    .close {
+      color: #77bd59;
+    }
+
+    .progress {
+      background-color: #77bd59;
+    }
+  }
+
+  &.error {
+    color: #da2e33;
+    background-color: #f9e0e0;
+
+    .close {
+      color: #da2e33;
+    }
+
+    .progress {
+      background-color: #da2e33;
+    }
+  }
+
+  .close {
+    background: none;
+    border: none;
+    padding: 5px 20px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  .progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.7);
+    width: 100%;
+    animation: progress-bar 3s linear forwards;
+  }
+}
+
+@keyframes progress-bar {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}

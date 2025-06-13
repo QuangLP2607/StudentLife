@@ -1,0 +1,129 @@
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+.alert {
+  animation: slideIn 0.3s ease-out; /* Khi xuất hiện */
+}
+
+.alert-exit {
+  animation: slideOut 0.3s ease-out; /* Khi biến mất */
+}
+
+.header {
+  height: 80px;
+  padding: 0 60px;
+  border-bottom: 1px solid #dee1eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &__search {
+    background: rgb(255, 255, 255);
+    padding: 8px;
+    border: 1px solid #596780;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+
+    &-input {
+      border: none;
+      outline: none;
+    }
+
+    &-icon {
+      cursor: pointer;
+    }
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    cursor: default;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+
+    &-bell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #c3d4e9;
+      border-radius: 50px;
+      height: 45px;
+      width: 45px;
+      font-size: 24px;
+      margin-right: 30px;
+      cursor: pointer;
+    }
+
+    &-avatar {
+      border: 1px solid #c3d4e9;
+      border-radius: 50px;
+      height: 45px;
+      width: 45px;
+      cursor: pointer;
+    }
+
+    &-avatar-wrap {
+      position: relative;
+      cursor: pointer;
+    }
+
+    &-name {
+      cursor: default;
+    }
+  }
+
+  &__dropdown {
+    position: absolute;
+    right: 20px;
+    top: 65px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 150px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+
+    &-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      &:hover {
+        background: #f0f0f0;
+      }
+    }
+
+    &-line {
+      margin: 0;
+      color: #c3d4e9;
+    }
+  }
+}

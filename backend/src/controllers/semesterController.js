@@ -9,70 +9,160 @@ exports.createSemester = async (req, res) => {
     return response.validationError(res, errors);
   }
 
-  const t = await sequelize.transaction();
+  const transaction = await sequelize.transaction();
 
   try {
     const user_id = req.userId;
-    const { name, start_date, end_date, weeks, courses } = req.body;
+    const { name, start_date, end_date, weeks, courses = [] } = req.body;
 
-    // Tạo semester
     const semester = await Semester.create(
       { user_id, name, start_date, end_date, weeks },
-      { transaction: t }
+      { transaction }
     );
 
-    // Duyệt từng course
-    for (const courseData of courses) {
-      const { name: courseName, schedules } = courseData;
+    for (const course of courses) {
+      const { name: courseName, schedules = [] } = course;
 
-      // Tạo course
-      const course = await Course.create(
+      const createdCourse = await Course.create(
         { name: courseName, semester_id: semester.id },
-        { transaction: t }
+        { transaction }
       );
 
-      // Nếu có schedule thì thêm
-      if (Array.isArray(schedules)) {
+      if (Array.isArray(schedules) && schedules.length > 0) {
         const scheduleData = schedules.map((s) => ({
           ...s,
-          course_id: course.id,
+          course_id: createdCourse.id,
         }));
-        await Schedule.bulkCreate(scheduleData, { transaction: t });
+
+        await Schedule.bulkCreate(scheduleData, { transaction });
       }
     }
 
-    await t.commit();
-    return response.success(
-      res,
-      "Tạo kỳ học thành công",
-      {
-        semester_id: semester.id,
-      },
-      201
-    );
-  } catch (error) {
-    await t.rollback();
-    console.error("Create Semester Error:", error);
-    return response.error(res, 500, "Lỗi khi tạo kỳ học", {
-      message: error.message,
+    await transaction.commit();
+
+    return response.created(res, "Tạo kỳ học thành công", {
+      semester_id: semester.id,
     });
+  } catch (error) {
+    await transaction.rollback();
+    return response.error(res);
+  }
+};
+
+//----------------------- Cập nhật học kỳ ---------------------------------------
+exports.updateSemester = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return response.validationError(res, errors);
+  }
+
+  const transaction = await sequelize.transaction();
+
+  try {
+    const user_id = req.userId;
+    const semesterId = req.params.id;
+    const { name, start_date, end_date, weeks, courses = [] } = req.body;
+
+    // Kiểm tra học kỳ có tồn tại và thuộc về người dùng không
+    const semester = await Semester.findOne({
+      where: { id: semesterId, user_id },
+    });
+
+    if (!semester) {
+      await transaction.rollback();
+      return response.notFound(res, "Không tìm thấy học kỳ!");
+    }
+
+    // Cập nhật thông tin học kỳ
+    await semester.update(
+      { name, start_date, end_date, weeks },
+      { transaction }
+    );
+
+    // Lấy danh sách course hiện có
+    const existingCourses = await Course.findAll({
+      where: { semester_id: semesterId },
+      transaction,
+    });
+
+    const existingCourseIds = existingCourses.map((c) => c.id);
+    const incomingCourseIds = courses.filter((c) => c.id).map((c) => c.id);
+
+    // Xoá các course và schedule không còn nữa
+    const coursesToDelete = existingCourseIds.filter(
+      (id) => !incomingCourseIds.includes(id)
+    );
+
+    for (const id of coursesToDelete) {
+      await Schedule.destroy({ where: { course_id: id }, transaction });
+      await Course.destroy({ where: { id }, transaction });
+    }
+
+    // Xử lý từng course trong danh sách mới
+    for (const course of courses) {
+      const { id, name: courseName, schedules = [] } = course;
+
+      let courseId = null;
+
+      // Kiểm tra xem id có nằm trong danh sách courses hiện tại không
+      const isExisting = id && existingCourseIds.includes(id);
+
+      if (isExisting) {
+        // Cập nhật course cũ
+        await Course.update(
+          { name: courseName },
+          { where: { id }, transaction }
+        );
+        courseId = id;
+
+        // Xoá lịch học cũ
+        await Schedule.destroy({ where: { course_id: courseId }, transaction });
+      } else {
+        // Bỏ qua id không hợp lệ hoặc không tồn tại trong DB → tạo mới
+        const newCourse = await Course.create(
+          { name: courseName, semester_id: semesterId },
+          { transaction }
+        );
+        courseId = newCourse.id;
+      }
+
+      // Tạo lại schedule
+      if (Array.isArray(schedules) && schedules.length > 0) {
+        const scheduleData = schedules.map((s) => ({
+          ...s,
+          course_id: courseId,
+        }));
+        await Schedule.bulkCreate(scheduleData, { transaction });
+      }
+    }
+
+    await transaction.commit();
+    return response.success(res, "Cập nhật học kỳ thành công!");
+  } catch (error) {
+    await transaction.rollback();
+    console.error(error);
+    return response.error(res);
   }
 };
 
 //----------------------- Lấy chi tiết kỳ học ---------------------------------------
 exports.getSemesterDetail = async (req, res) => {
-  const { semester_id } = req.params;
-
   try {
+    const { semester_id } = req.params;
+
+    if (!semester_id) {
+      return response.badRequest(res, "Thiếu semester_id");
+    }
+
     const semester = await Semester.findByPk(semester_id, {
       include: [
         {
           model: Course,
-          as: "courses", // Alias đã khai báo trong mối quan hệ model
+          as: "courses",
           include: [
             {
               model: Schedule,
-              as: "schedules", // Alias đúng theo mối quan hệ trong model
+              as: "schedules",
             },
           ],
         },
@@ -80,28 +170,25 @@ exports.getSemesterDetail = async (req, res) => {
     });
 
     if (!semester) {
-      return response.error(res, 404, "Không tìm thấy kỳ học");
+      return response.notFound(res, "Kỳ học");
     }
 
     return response.success(res, "Lấy chi tiết kỳ học thành công", {
       semester,
     });
   } catch (err) {
-    console.error(err);
-    return response.error(res, 500, "Lỗi khi lấy chi tiết kỳ học", {
-      error: err.message,
-    });
+    return response.error(res);
   }
 };
 
 //----------------------- Lấy tất cả kỳ học ---------------------------------------
 exports.getSemesters = async (req, res) => {
-  const user_id = req.userId;
-
   try {
+    const user_id = req.userId;
+
     const semesters = await Semester.findAll({
-      attributes: ["id", "name"],
       where: { user_id },
+      attributes: ["id", "name", "start_date", "weeks"],
       order: [["createdAt", "DESC"]],
     });
 
@@ -109,26 +196,22 @@ exports.getSemesters = async (req, res) => {
       semesters,
     });
   } catch (err) {
-    console.error(err);
-    return response.error(res, 500, "Lỗi khi lấy danh sách kỳ học", {
-      error: err.message,
-    });
+    return response.error(res);
   }
 };
 
-//----------------------- Update tên kỳ ---------------------------------------
+//----------------------- Đổi tên kỳ học ---------------------------------------
 exports.renameSemester = async (req, res) => {
-  const { semester_id, new_name } = req.body;
-
-  if (!semester_id || !new_name) {
-    return response.error(res, 400, "Thiếu semester_id hoặc new_name");
-  }
-
   try {
-    const semester = await Semester.findByPk(semester_id);
+    const { semester_id, new_name } = req.body;
 
+    if (!semester_id || !new_name) {
+      return response.badRequest(res, "Thiếu semester_id hoặc new_name");
+    }
+
+    const semester = await Semester.findByPk(semester_id);
     if (!semester) {
-      return response.error(res, 404, "Không tìm thấy kỳ học");
+      return response.notFound(res, "Kỳ học");
     }
 
     semester.name = new_name;
@@ -136,36 +219,28 @@ exports.renameSemester = async (req, res) => {
 
     return response.success(res, "Cập nhật tên kỳ học thành công");
   } catch (err) {
-    console.error(err);
-    return response.error(res, 500, "Lỗi khi cập nhật tên kỳ học", {
-      error: err.message,
-    });
+    return response.error(res);
   }
 };
 
 //----------------------- Xóa kỳ học ---------------------------------------
 exports.deleteSemester = async (req, res) => {
-  const { semester_id } = req.body;
-
-  if (!semester_id) {
-    return response.error(res, 400, "Thiếu semester_id");
-  }
-
   try {
-    const semester = await Semester.findByPk(semester_id);
+    const { semester_id } = req.body;
 
-    if (!semester) {
-      return response.error(res, 404, "Không tìm thấy kỳ học");
+    if (!semester_id) {
+      return response.badRequest(res, "Thiếu semester_id");
     }
 
-    // Xóa kỳ học (các course và schedule sẽ tự động bị xóa nhờ cascade)
+    const semester = await Semester.findByPk(semester_id);
+    if (!semester) {
+      return response.notFound(res, "Kỳ học");
+    }
+
     await semester.destroy();
 
     return response.success(res, "Xóa kỳ học thành công");
   } catch (err) {
-    console.error(err);
-    return response.error(res, 500, "Lỗi khi xóa kỳ học", {
-      error: err.message,
-    });
+    return response.error(res);
   }
 };

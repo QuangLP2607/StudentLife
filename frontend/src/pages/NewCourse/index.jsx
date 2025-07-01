@@ -1,24 +1,36 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Alert from "@components/Arlert";
-import { useAlert } from "../../hooks/useAlert";
+import { useAlert } from "@hooks/useAlert";
 import classNames from "classnames/bind";
 import CourseCalendar from "@components/CourseCalendar";
 import ContentFirst from "./Components/ContentFirst";
 import ContentSecond from "./Components/ContentSecond";
 import styles from "./NewCourse.module.scss";
 import { initialSemester, initialCourse } from "../../constants/initialState";
-import semesterService from "../../services/semesterService";
+import semesterService from "@services/semesterService";
+import { SemesterContext } from "@/contexts/SemesterContext";
 
 const cx = classNames.bind(styles);
 
 export default function NewCourses() {
-  const [semester, setSemester] = useState(initialSemester);
+  const { mode } = useParams(); // "new" hoặc "edit"
+  const location = useLocation();
+  const incomingSemester = location.state?.semester || null;
+  const [semester, setSemester] = useState(
+    mode === "edit" && incomingSemester ? incomingSemester : initialSemester
+  );
   const [course, setCourse] = useState(initialCourse);
   const [editingCourse, setEditingCourse] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const { alert, showAlert, clearAlert } = useAlert();
   const navigate = useNavigate();
+  const { setSemesterId } = useContext(SemesterContext);
+  useEffect(() => {
+    if (mode === "edit" && incomingSemester) {
+      setSemester(incomingSemester);
+    }
+  }, [mode, incomingSemester]);
 
   const handleSaveSemester = async () => {
     if (
@@ -32,9 +44,18 @@ export default function NewCourses() {
     }
 
     try {
-      await semesterService.addSemester(semester);
-      showAlert("Lưu học kỳ thành công!", "success");
-      localStorage.setItem("semester", JSON.stringify(semester));
+      if (mode === "edit") {
+        await semesterService.updateSemester(semester);
+        // const { setSemesterId } = useContext(SemesterContext);
+        setSemesterId(semester.id);
+        showAlert("Cập nhật học kỳ thành cô ng!", "success");
+      } else {
+        const response = await semesterService.addSemester(semester);
+        showAlert("Tạo học kỳ thành công!", "success");
+        const semesterId = response.data.data.semester_id;
+        localStorage.setItem("semesterId", semesterId);
+      }
+
       setTimeout(() => navigate("/"), 2000);
     } catch (error) {
       showAlert("Có lỗi xảy ra khi lưu học kỳ!", "error");
@@ -45,8 +66,6 @@ export default function NewCourses() {
   const handleSaveCourse = () => {
     const { name, schedules } = course;
     if (!name) return showAlert("Vui lòng điền đầy đủ thông tin!", "error");
-    if (!schedules.length)
-      return showAlert("Vui lòng thêm ít nhất một lịch học!", "error");
 
     for (let i = 0; i < schedules.length; i++) {
       const { start_time, end_time, day, location } = schedules[i];
@@ -81,6 +100,23 @@ export default function NewCourses() {
     showAlert("Lưu học phần thành công!", "success");
   };
 
+  const handleDeleteCourse = (courseId) => {
+    setSemester((prev) => {
+      const updatedCourses = (prev.courses || []).filter(
+        (course) => course.id !== courseId
+      );
+      return { ...prev, courses: updatedCourses };
+    });
+
+    if (editingCourse?.id === courseId) {
+      setCourse(initialCourse);
+      setEditingCourse(null);
+      setShowForm(false);
+    }
+
+    showAlert("Xóa học phần thành công!", "success");
+  };
+
   return (
     <div className={cx("new-course")}>
       <CourseCalendar semester={semester} />
@@ -110,6 +146,7 @@ export default function NewCourses() {
           course={course}
           setCourse={setCourse}
           handleSaveCourse={handleSaveCourse}
+          handleDeleteCourse={handleDeleteCourse}
           handleSaveSemester={handleSaveSemester}
         />
       </div>

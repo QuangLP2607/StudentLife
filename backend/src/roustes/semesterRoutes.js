@@ -6,8 +6,15 @@ const { authenticateToken } = require("../middleware/authMiddleware");
 // Tạo kỳ học mới
 router.post("/add", authenticateToken, semesterController.createSemester);
 
-// Lấy danh sách kỳ học theo user_id
-router.get("/detail/:semester_id", semesterController.getSemesterDetail);
+// Cập nhật học kỳ
+router.put("/:id", authenticateToken, semesterController.updateSemester);
+
+// Lấy thông tin chi tiết kỳ học
+router.get(
+  "/detail/:semester_id",
+  authenticateToken,
+  semesterController.getSemesterDetail
+);
 
 // Lấy danh sách kỳ tất cả học kỳ
 router.get("/", authenticateToken, semesterController.getSemesters);

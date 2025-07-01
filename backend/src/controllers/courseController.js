@@ -1,5 +1,7 @@
 const { Course, Schedule } = require("../models");
+const response = require("../utils/response");
 
+//----------------------- Tạo học phần ---------------------------------------
 exports.createCourse = async (req, res) => {
   try {
     const { name, semester_id, schedules } = req.body;
@@ -16,84 +18,70 @@ exports.createCourse = async (req, res) => {
       await Schedule.bulkCreate(scheduleData);
     }
 
-    res.status(201).json({
-      message: "Tạo môn học thành công",
-      data: course,
-    });
+    return response.created(res, "Tạo môn học thành công", course);
   } catch (error) {
-    res.status(500).json({
-      message: "Lỗi khi tạo môn học",
-      error: error.message,
-    });
+    return response.error(res);
   }
 };
 
+//----------------------- Lấy danh sách học phần ---------------------------------------
 exports.getAllCourses = async (req, res) => {
   try {
     const courses = await Course.findAll({
-      include: ["semester"], // alias defined in model
+      include: ["semester"],
     });
-    res.status(200).json(courses);
+    return response.success(res, "Lấy danh sách môn học thành công", courses);
   } catch (error) {
-    res.status(500).json({
-      message: "Lỗi khi lấy danh sách môn học",
-      error: error.message,
-    });
+    return response.error(res);
   }
 };
 
+//----------------------- Lấy thông tin học phần ---------------------------------------
 exports.getCourseById = async (req, res) => {
   try {
     const course = await Course.findByPk(req.params.id, {
       include: ["semester"],
     });
 
-    if (!course)
-      return res.status(404).json({ message: "Không tìm thấy môn học" });
+    if (!course) {
+      return response.notFound(res, "Môn học");
+    }
 
-    res.status(200).json(course);
+    return response.success(res, "Lấy môn học thành công", course);
   } catch (error) {
-    res.status(500).json({
-      message: "Lỗi khi lấy môn học",
-      error: error.message,
-    });
+    return response.error(res, 500, "Lỗi khi lấy môn học", error.message);
   }
 };
 
+//----------------------- Update học phần ---------------------------------------
 exports.updateCourse = async (req, res) => {
   try {
     const [updated] = await Course.update(req.body, {
       where: { id: req.params.id },
     });
 
-    if (!updated)
-      return res.status(404).json({ message: "Không tìm thấy môn học" });
+    if (!updated) {
+      return response.notFound(res, "Môn học");
+    }
 
     const updatedCourse = await Course.findByPk(req.params.id);
-    res.status(200).json({
-      message: "Đã cập nhật môn học",
-      data: updatedCourse,
-    });
+    return response.success(res, "Đã cập nhật môn học", updatedCourse);
   } catch (error) {
-    res.status(500).json({
-      message: "Lỗi khi cập nhật môn học",
-      error: error.message,
-    });
+    return response.error(res);
   }
 };
 
+//----------------------- Xóa học phần ---------------------------------------
 exports.deleteCourse = async (req, res) => {
   try {
     const deleted = await Course.destroy({ where: { id: req.params.id } });
 
-    if (!deleted)
-      return res.status(404).json({ message: "Không tìm thấy môn học" });
+    if (!deleted) {
+      return response.notFound(res, "Môn học");
+    }
 
-    res.status(200).json({ message: "Đã xóa môn học" });
+    return response.deleted(res);
   } catch (error) {
-    res.status(500).json({
-      message: "Lỗi khi xóa môn học",
-      error: error.message,
-    });
+    return response.error(res);
   }
 };

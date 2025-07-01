@@ -36,10 +36,17 @@
   margin-top: 20px;
   display: flex;
   justify-content: center;
+  gap: 10px;
 
   &__btn {
     color: #ffffff;
     background-color: #8ac44b;
+    font-size: 14px;
+    padding: 8px 20px;
+
+    &--danger {
+      background-color: #f04438;
+    }
   }
 }
 

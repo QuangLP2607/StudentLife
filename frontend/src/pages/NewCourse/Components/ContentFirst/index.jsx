@@ -2,6 +2,7 @@ import classNames from "classnames/bind";
 import styles from "./contentFirst.module.scss";
 import CourseList from "@components/CourseList";
 import WeekPicker from "@components/WeekPicker";
+import { format } from "date-fns";
 
 const cx = classNames.bind(styles);
 
@@ -21,7 +22,7 @@ export default function ContentFirst({
   };
 
   const handleWeekChange = (range) => {
-    const formattedStart = range.from.toISOString().split("T")[0];
+    const formattedStart = format(range.from, "yyyy-MM-dd");
     const newEndDate = calculateEndDate(formattedStart, semester.weeks);
 
     setSemester({
@@ -63,7 +64,10 @@ export default function ContentFirst({
         <div className={cx("form-grid__row")}>
           <label className={cx("form-grid__label")}>Thời gian:</label>
           <div className={cx("form-grid__time-range")}>
-            <WeekPicker onChange={handleWeekChange} />
+            <WeekPicker
+              onChange={handleWeekChange}
+              defaultValue={semester.start_date}
+            />
             <span className={cx("form-grid__separator")}>đến</span>
             <input
               type="date"

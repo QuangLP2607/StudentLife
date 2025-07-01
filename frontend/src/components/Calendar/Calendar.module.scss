@@ -46,6 +46,7 @@
     border-radius: 6px;
     font-size: 13px;
     transition: background 0.2s;
+    position: relative;
   }
 
   &__weekday {
@@ -100,10 +101,12 @@
   color: white;
 }
 
-.calendar__dot {
-  width: 6px;
-  height: 6px;
+.dot {
+  position: absolute;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background-color: #ff5e57;
-  margin: 2px auto 0;
+  bottom: 5px;
+  right: 5px;
 }

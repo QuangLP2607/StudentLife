@@ -7,7 +7,7 @@ import styles from "./WeekPicker.module.scss";
 
 const cx = classNames.bind(styles);
 
-export default function WeekPicker({ onChange }) {
+export default function WeekPicker({ onChange, defaultValue }) {
   const [selectedDay, setSelectedDay] = useState();
   const [hoveredDay, setHoveredDay] = useState();
   const [showPicker, setShowPicker] = useState(false);
@@ -37,6 +37,15 @@ export default function WeekPicker({ onChange }) {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (defaultValue) {
+      setSelectedDay(defaultValue);
+      const range = getFullWeek(defaultValue);
+      onChange?.(range);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const weekStart = selectedDay
@@ -82,7 +91,6 @@ export default function WeekPicker({ onChange }) {
                 borderRadius: "20%",
                 color: "white",
               },
-
               selectedWeek: {
                 fontWeight: "bold",
                 backgroundColor: "#ffb3b3",

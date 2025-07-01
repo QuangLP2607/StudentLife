@@ -1,102 +1,109 @@
-import React, { useState } from "react";
 import styles from "./WeekCalendar.module.scss";
+import { Icon } from "@iconify/react";
 
-const HOURS = Array.from({ length: 13 }, (_, i) => 6 + i); // 6AM -> 6PM
 const DAYS = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
 
-const scheduleData = [
-  {
-    title: "Phương trình vi phân và chuỗi",
-    day: 2,
-    start: "06:45",
-    end: "08:25",
-    color: "#f87171",
-    week: 3,
-  },
-  {
-    title: "Tiếng Nhật 8",
-    day: 3,
-    start: "08:30",
-    end: "10:15",
-    color: "#60a5fa",
-    week: 3,
-  },
-  {
-    title: "Quản trị phần mềm",
-    day: 4,
-    start: "06:45",
-    end: "08:25",
-    color: "#f87171",
-    week: 3,
-  },
-  {
-    title: "Nhập môn khoa học dữ liệu",
-    day: 4,
-    start: "10:15",
-    end: "11:45",
-    color: "#fbbf24",
-    week: 3,
-  },
-  {
-    title: "Kỹ năng ITSS học bằng tiếng Nhật",
-    day: 5,
-    start: "14:10",
-    end: "17:30",
-    color: "#60a5fa",
-    week: 3,
-  },
-];
+// Tạo nhãn thời gian từ 5AM đến 6PM
+const TIME_LABELS = Array.from({ length: 14 }, (_, i) => {
+  const hour = 5 + i;
+  const ampm = hour < 12 ? "AM" : "PM";
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${hour12} ${ampm}`;
+});
 
 function timeToRow(time) {
   const [h, m] = time.split(":").map(Number);
-  return (h - 6) * 4 + Math.floor(m / 15) + 1;
+  return (h - 5) * 4 + Math.floor(m / 15) + 3;
 }
 
-export default function WeekCalendar() {
-  const [week, setWeek] = useState(3);
+const COLORS = [
+  "#f87171",
+  "#60a5fa",
+  "#fbbf24",
+  "#34d399",
+  "#a78bfa",
+  "#f472b6",
+  "#fb923c",
+];
 
-  const weekData = scheduleData.filter((item) => item.week === week);
+const getColorForId = (id) => {
+  const hash = Array.from(id).reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return COLORS[hash % COLORS.length];
+};
+
+export default function WeekCalendar({
+  weekData,
+  handleChangeWeek,
+  currentWeek,
+}) {
+  const scheduleData = weekData.map((item) => ({
+    title: item.name,
+    day: parseInt(item.day),
+    start: item.startTime.slice(0, 5),
+    end: item.endTime.slice(0, 5),
+    color: getColorForId(item.id),
+    location: item.location,
+  }));
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <button onClick={() => setWeek((w) => Math.max(w - 1, 1))}>
-          {"<"}
+    <div className={styles["week-calendar"]}>
+      <div className={styles["week-calendar__header"]}>
+        <button onClick={() => handleChangeWeek(-1)}>
+          <Icon icon="material-symbols:arrow-back-ios-rounded" />
         </button>
-        <span>Tuần {week}</span>
-        <button onClick={() => setWeek((w) => w + 1)}>{">"}</button>
+        <span>Tuần {currentWeek}</span>
+        <button onClick={() => handleChangeWeek(1)}>
+          <Icon
+            style={{ transform: "rotate(180deg)" }}
+            icon="material-symbols:arrow-back-ios-rounded"
+          />
+        </button>
       </div>
 
-      <div className={styles.grid}>
-        <div className={styles.timeColumn}>
-          {HOURS.map((h) => (
-            <div key={h} className={styles.timeLabel}>
-              {h < 12 ? `${h} AM` : `${h - 12} PM`}
+      <div className={styles["week-calendar__grid"]}>
+        <div className={styles["week-calendar__time-column"]}>
+          <div style={{ height: 40 }}></div>
+          {TIME_LABELS.map((label, idx) => (
+            <div
+              key={idx}
+              className={styles["week-calendar__time-label"]}
+              style={{ gridRow: idx * 4 + 2 }}
+            >
+              {label}
             </div>
           ))}
         </div>
 
         {DAYS.map((day, colIdx) => (
-          <div key={day} className={styles.dayColumn}>
-            <div className={styles.dayHeader}>{day}</div>
-            {weekData
-              .filter((item) => item.day === colIdx + 2) // Thứ 2 → 2, Chủ nhật → 8
+          <div key={day} className={styles["week-calendar__day-column"]}>
+            <div className={styles["week-calendar__day-header"]}>{day}</div>
+            {scheduleData
+              .filter((item) => item.day === colIdx + 1)
               .map((item, idx) => {
                 const startRow = timeToRow(item.start);
                 const endRow = timeToRow(item.end);
+                if (startRow >= endRow) return null;
+
                 return (
                   <div
                     key={idx}
-                    className={styles.classBlock}
+                    className={styles["week-calendar__class-block"]}
                     style={{
                       gridRow: `${startRow} / ${endRow}`,
                       backgroundColor: item.color,
                     }}
                   >
-                    <div className={styles.timeText}>
+                    <div className={styles["week-calendar__class-block-time"]}>
                       {item.start} - {item.end}
                     </div>
-                    <div>{item.title}</div>
+                    <div className={styles["week-calendar__class-block-title"]}>
+                      {item.title}
+                    </div>
+                    <div
+                      className={styles["week-calendar__class-block-location"]}
+                    >
+                      {item.location}
+                    </div>
                   </div>
                 );
               })}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import classNames from "classnames/bind";
 import { Icon } from "@iconify/react";
 import styles from "./Calendar.module.scss";
@@ -7,26 +7,52 @@ import weekday from "dayjs/plugin/weekday";
 import localeData from "dayjs/plugin/localeData";
 import weekOfYear from "dayjs/plugin/weekOfYear";
 import "dayjs/locale/vi";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 
-const cx = classNames.bind(styles);
+dayjs.extend(customParseFormat);
 dayjs.extend(weekday);
 dayjs.extend(localeData);
 dayjs.extend(weekOfYear);
-dayjs.locale("vi");
+
+// Cấu hình dayjs để tuần bắt đầu Chủ Nhật (0)
+dayjs.locale({
+  ...dayjs.Ls.vi,
+  weekStart: 0,
+});
+
+const cx = classNames.bind(styles);
 
 export default function Calendar({
   onDateSelect,
   className,
   highlightWeek: highlightWeekProp,
+  markDays = [],
+  value,
 }) {
-  const [currentDate, setCurrentDate] = useState(dayjs());
-  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const initialDate =
+    value && dayjs(value, "DD-MM-YYYY").isValid()
+      ? dayjs(value, "DD-MM-YYYY")
+      : dayjs();
+  const [currentDate, setCurrentDate] = useState(initialDate);
+  const [selectedDate, setSelectedDate] = useState(initialDate);
 
   const highlightWeek = highlightWeekProp ?? false;
 
+  useEffect(() => {
+    if (value) {
+      const newDate = dayjs(value, "DD-MM-YYYY");
+      if (newDate.isValid()) {
+        setSelectedDate(newDate);
+        setCurrentDate(newDate);
+      }
+    }
+  }, [value]);
+
   const generateDays = () => {
     const startOfMonth = currentDate.startOf("month");
-    const startDay = startOfMonth.day() === 0 ? 6 : startOfMonth.day() - 1;
+    // Tuần bắt đầu Chủ Nhật => startDay là số thứ trong tuần của ngày đầu tháng, Chủ Nhật = 0
+    const startDay = startOfMonth.day();
+
     const daysInMonth = currentDate.daysInMonth();
 
     const prevMonth = currentDate.subtract(1, "month");
@@ -110,7 +136,8 @@ export default function Calendar({
       </div>
 
       <div className={cx("calendar__grid")}>
-        {["Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7", "CN"].map(
+        {/* Chủ nhật lên đầu */}
+        {["CN", "Th 2", "Th 3", "Th 4", "Th 5", "Th 6", "Th 7"].map(
           (day, i) => (
             <div
               key={`weekday-${i}`}
@@ -132,7 +159,7 @@ export default function Calendar({
           const dayOfWeek = actualDate.day();
           const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
           const isWeekHighlighted = highlightWeek && isSameWeek(actualDate);
-
+          const isMarkDays = markDays.includes(actualDate.format("DD-MM-YYYY"));
           return (
             <div
               key={`day-${index}`}
@@ -146,6 +173,7 @@ export default function Calendar({
               onClick={() => handleSelectDate(item)}
             >
               {item.day}
+              {isMarkDays ? <div className={cx("dot")} /> : null}
             </div>
           );
         })}

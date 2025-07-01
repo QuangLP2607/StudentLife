@@ -103,7 +103,7 @@ export default function Sidebar() {
             </li>
           </ul>
         </li>
-        <li className={cx("sidebar__submenu")}>
+        {/* <li className={cx("sidebar__submenu")}>
           <span className={cx("sidebar__submenu-title")}>
             {isExpanded ? (
               "Tài chính"
@@ -135,7 +135,7 @@ export default function Sidebar() {
               )}
             </li>
           </ul>
-        </li>
+        </li> */}
         <li className={cx("sidebar__submenu")}>
           <span className={cx("sidebar__submenu-title")}>
             {isExpanded ? (

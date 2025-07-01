@@ -1,12 +1,12 @@
-import { useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import classNames from "classnames/bind";
 import styles from "./Login.module.scss";
 import logo from "@/assets/logo1.png";
-import authService from "../../services/authService";
+import authService from "@services/authService";
 import Alert from "@components/Arlert";
-import { useAlert } from "../../hooks/useAlert";
-import { UserContext } from "../../contexts/UserContext";
+import { useAlert } from "@hooks/useAlert";
+import { UserContext } from "@contexts/UserContext";
 
 const cx = classNames.bind(styles);
 
@@ -17,9 +17,15 @@ export default function Login() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const { alert, showAlert, clearAlert } = useAlert();
-
-  const navigate = useNavigate();
   const { setUser } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      navigate("/");
+    }
+  }, [navigate]);
 
   const handleLogin = async () => {
     if (!isValidEmail(email)) return showAlert("Email không hợp lệ!", "error");

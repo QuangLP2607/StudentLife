@@ -1,0 +1,68 @@
+.text-editor {
+  &__overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+  }
+
+  &__container {
+    background-color: #fff;
+    padding: 20px;
+    width: 60%;
+    height: 80%;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+
+    /* Thêm các dòng này */
+    box-sizing: border-box; // đảm bảo padding không làm tăng kích thước ngoài mong muốn
+    overflow: hidden; // ẩn phần nội dung tràn ra ngoài container
+  }
+
+  &__editor {
+    border: 1px solid #ccc;
+
+    /* Thêm các dòng này */
+    flex: 1 1 auto; // chiếm hết không gian còn lại của container
+    overflow-y: auto; // nếu nội dung dài thì hiện scrollbar dọc
+    box-sizing: border-box; // tính padding và border vào kích thước
+  }
+
+  &__actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__button {
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+
+    &--cancel {
+      background-color: #f04438;
+      color: white;
+    }
+
+    &--save {
+      background-color: #8ac44b;
+      color: white;
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

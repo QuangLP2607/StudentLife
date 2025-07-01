@@ -1,12 +1,17 @@
 .dropdown {
   position: relative;
+  border: 1px solid #ccc;
+  border-radius: 6px;
   width: 100%;
+
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px #007bffaa;
+  }
 
   &__button {
     padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #fff;
     cursor: pointer;
     font-size: 16px;
     text-align: left;

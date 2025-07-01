@@ -28,36 +28,32 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Nếu token hết hạn (401), thử refresh token
     if (
       error.response &&
-      error.response.status === 401 &&
+      error.response.status === 403 &&
       !originalRequest._retry
     ) {
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        if (!refreshToken) {
-          return Promise.reject(error); // Nếu không có refresh token, yêu cầu login lại
-        }
-
-        // Gửi request làm mới token
-        const { data } = await axios.post(
-          `${API_URL}/auth/refresh_token`,
+        // Gửi yêu cầu làm mới token
+        const response = await axios.post(
+          `${API_URL}/auth/refresh-token`,
           {},
           {
+            withCredentials: true,
             headers: {
-              Authorization: `Bearer ${refreshToken}`,
+              "Content-Type": "application/json",
             },
           }
         );
+        // Lưu accessToken mới vào localStorage
+        localStorage.setItem("accessToken", response.data.data.accessToken);
 
-        // Lưu token mới vào localStorage
-        localStorage.setItem("token", data.accessToken);
-
-        // Cập nhật lại header Authorization và thử lại request ban đầu
-        originalRequest.headers["Authorization"] = `Bearer ${data.accessToken}`;
+        // Gán accessToken mới vào header và gửi lại request
+        originalRequest.headers[
+          "Authorization"
+        ] = `Bearer ${response.data.accessToken}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
         return Promise.reject(refreshError);

@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import styles from "./ContentSecond.module.scss";
 import CustomDropdown from "@components/CustomDropdown";
 import { initialSchedule } from "../../../../constants/initialState";
+import TimePicker from "@components/TimePicker";
 
 const cx = classNames.bind(styles);
 
@@ -14,6 +15,7 @@ export default function ContentSecond({
   course,
   setCourse,
   handleSaveCourse,
+  handleDeleteCourse,
   handleSaveSemester,
 }) {
   const title = editingCourse ? "Thông tin học phần" : "Thêm học phần";
@@ -130,10 +132,8 @@ export default function ContentSecond({
               {course.schedules.length > 0 && (
                 <>
                   <div className={cx("form-grid__row")}>
-                    <input
-                      type="time"
-                      className={cx("form-grid__input")}
-                      value={course.schedules[activeTab]?.start_time || ""}
+                    <TimePicker
+                      value={course.schedules[activeTab]?.start_time}
                       onChange={(e) =>
                         onChangeScheduleField(
                           activeTab,
@@ -141,11 +141,10 @@ export default function ContentSecond({
                           e.target.value
                         )
                       }
-                    />
-                    <input
-                      type="time"
-                      className={cx("form-grid__input")}
-                      value={course.schedules[activeTab]?.end_time || ""}
+                    ></TimePicker>
+
+                    <TimePicker
+                      value={course.schedules[activeTab]?.end_time}
                       onChange={(e) =>
                         onChangeScheduleField(
                           activeTab,
@@ -153,7 +152,7 @@ export default function ContentSecond({
                           e.target.value
                         )
                       }
-                    />
+                    ></TimePicker>
                     <CustomDropdown
                       placeholder="Chọn thứ"
                       options={dayOptions}
@@ -215,8 +214,16 @@ export default function ContentSecond({
                 className={cx("add_subject__btn")}
                 onClick={handleSaveCourse}
               >
-                Lưu học phần
+                Lưu
               </button>
+              {editingCourse && (
+                <button
+                  className={cx("add_subject__btn", "add_subject__btn--danger")}
+                  onClick={() => handleDeleteCourse(course.id)}
+                >
+                  Xóa
+                </button>
+              )}
             </div>
           </div>
         </>

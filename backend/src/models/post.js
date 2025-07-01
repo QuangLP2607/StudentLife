@@ -4,19 +4,16 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Post extends Model {
     static associate(models) {
-      // Một post có thể thuộc về một nhóm học tập (StudyGroup)
       Post.belongsTo(models.StudyGroup, {
         foreignKey: "group_id",
         as: "studyGroup",
       });
 
-      // Một post có thể thuộc về một môn học (Course)
       Post.belongsTo(models.Course, {
         foreignKey: "course_id",
         as: "course",
       });
 
-      // Một post thuộc về một user (Người đăng)
       Post.belongsTo(models.User, {
         foreignKey: "user_id",
         as: "user",
@@ -50,10 +47,20 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      posted_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW, // mặc định thời gian hiện tại khi tạo bài
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
       sequelize,
       modelName: "Post",
+      timestamps: false, // tắt timestamps mặc định nếu bạn muốn tự quản lý
     }
   );
 

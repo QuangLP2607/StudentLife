@@ -35,9 +35,15 @@ export default function CourseCalendar({ semester }) {
     const formattedSelectedDate = `${selectedDateParts[2]}-${selectedDateParts[1]}-${selectedDateParts[0]}`;
     const selectedDateObj = new Date(formattedSelectedDate);
     const startDateObj = new Date(semester.start_date);
+    const endDateObj = new Date(semester.end_date);
 
     if (isNaN(selectedDateObj.getTime()) || isNaN(startDateObj.getTime())) {
       console.error("Ngày không hợp lệ");
+      return;
+    }
+
+    if (selectedDateObj < startDateObj || selectedDateObj > endDateObj) {
+      setSelectedCourses([]);
       return;
     }
 
@@ -104,9 +110,67 @@ export default function CourseCalendar({ semester }) {
     setSelectedCourses(matchedSchedules);
   };
 
+  const getHighlightDates = (semester) => {
+    const startDate = new Date(semester.start_date); // Không cần chỉnh về thứ Hai
+    const highlightDates = new Set();
+    const totalWeeks = semester.weeks;
+    const allDates = [];
+
+    for (let week = 1; week <= totalWeeks; week++) {
+      for (let day = 0; day < 7; day++) {
+        const current = new Date(startDate);
+        current.setDate(startDate.getDate() + (week - 1) * 7 + day);
+
+        const dd = String(current.getDate()).padStart(2, "0");
+        const mm = String(current.getMonth() + 1).padStart(2, "0");
+        const yyyy = current.getFullYear();
+        const dateStr = `${dd}-${mm}-${yyyy}`;
+
+        allDates.push({ week, dateStr, dayOfWeek: current.getDay() });
+      }
+    }
+
+    for (const course of semester.courses) {
+      for (const s of course.schedules) {
+        const scheduleDay = parseInt(s.day);
+
+        for (const { week, dateStr, dayOfWeek } of allDates) {
+          if (scheduleDay !== dayOfWeek) continue;
+
+          let isMatch = false;
+          switch (s.week_type) {
+            case "weekly":
+              isMatch = true;
+              break;
+            case "even":
+              isMatch = week % 2 === 0;
+              break;
+            case "odd":
+              isMatch = week % 2 !== 0;
+              break;
+            case "custom": {
+              const validWeeks = parseWeekRanges(s.custom_weeks);
+              isMatch = validWeeks.includes(week);
+              break;
+            }
+          }
+
+          if (isMatch) {
+            highlightDates.add(dateStr);
+          }
+        }
+      }
+    }
+
+    return Array.from(highlightDates);
+  };
+
   return (
     <div className={cx("course-calendar")}>
-      <Calendar onDateSelect={handleDateSelect} />
+      <Calendar
+        onDateSelect={handleDateSelect}
+        markDays={getHighlightDates(semester)}
+      />
       <hr style={{ width: "100%" }} />
       <h3>Thông tin chi tiết</h3>
 
@@ -115,7 +179,8 @@ export default function CourseCalendar({ semester }) {
           {selectedCourses.map((course) => (
             <div key={course.id} className={cx("schedule")}>
               <div className={cx("schedule__time")}>
-                <div>{course.startTime}</div>|<div>{course.endTime}</div>
+                <div>{course.startTime.slice(0, 5)}</div>|
+                <div>{course.endTime.slice(0, 5)}</div>
               </div>
               <div className={cx("schedule__info")}>
                 <div className={cx("schedule__info-name")}>{course.name}</div>

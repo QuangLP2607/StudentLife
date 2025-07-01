@@ -1,17 +1,22 @@
 const express = require("express");
 const router = express.Router();
 const scheduleController = require("../controllers/scheduleController");
+const { authenticateToken } = require("../middleware/authMiddleware");
 
-// POST: Tạo mới lịch học
-router.post("/add", scheduleController.createSchedule);
+// Tạo mới lịch học
+router.post("/add", authenticateToken, scheduleController.createSchedule);
 
-// GET: Lấy tất cả lịch học theo course_id
-router.get("/course/:courseId", scheduleController.getSchedulesByCourse);
+// Lấy tất cả lịch học theo course_id
+router.get(
+  "/course/:courseId",
+  authenticateToken,
+  scheduleController.getSchedulesByCourse
+);
 
-// PUT: Cập nhật lịch học
-router.put("/:id", scheduleController.updateSchedule);
+// Cập nhật lịch học
+router.put("/:id", authenticateToken, scheduleController.updateSchedule);
 
-// DELETE: Xoá lịch học
-router.delete("/:id", scheduleController.deleteSchedule);
+// Xoá lịch học
+router.delete("/:id", authenticateToken, scheduleController.deleteSchedule);
 
 module.exports = router;

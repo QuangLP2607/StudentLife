@@ -1,6 +1,7 @@
 const { Schedule } = require("../models");
+const response = require("../utils/response");
 
-// ✅ Tạo mới một Schedule cho một Course
+//----------------------- Tạo lịch học ---------------------------------------
 exports.createSchedule = async (req, res) => {
   try {
     const {
@@ -23,15 +24,15 @@ exports.createSchedule = async (req, res) => {
       location,
     });
 
-    res
-      .status(201)
-      .json({ message: "Tạo lịch học thành công", schedule: newSchedule });
+    return response.created(res, "Tạo lịch học thành công", {
+      schedule: newSchedule,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Lỗi khi tạo lịch học", error });
+    return response.error(res);
   }
 };
 
-// ✅ Lấy tất cả schedules theo course_id
+//----------------------- Lấy tất cả lịch học theo course_id ---------------------------------------
 exports.getSchedulesByCourse = async (req, res) => {
   try {
     const courseId = req.params.courseId;
@@ -40,44 +41,42 @@ exports.getSchedulesByCourse = async (req, res) => {
       where: { course_id: courseId },
     });
 
-    res.status(200).json(schedules);
+    return response.success(res, "Lấy lịch học thành công", { schedules });
   } catch (error) {
-    res.status(500).json({ message: "Lỗi khi lấy lịch học", error });
+    return response.error(res);
   }
 };
 
-// ✅ Cập nhật lịch học theo ID
+//----------------------- Cập nhật lịch học theo ID ---------------------------------------
 exports.updateSchedule = async (req, res) => {
   try {
     const id = req.params.id;
-    const updated = await Schedule.update(req.body, { where: { id } });
 
-    if (updated[0] === 0) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy lịch học để cập nhật" });
+    const [updated] = await Schedule.update(req.body, { where: { id } });
+
+    if (updated === 0) {
+      return response.notFound(res, "Không tìm thấy lịch học để cập nhật");
     }
 
-    res.status(200).json({ message: "Cập nhật thành công" });
+    return response.success(res, "Cập nhật lịch học thành công");
   } catch (error) {
-    res.status(500).json({ message: "Lỗi khi cập nhật lịch học", error });
+    return response.error(res);
   }
 };
 
-// ✅ Xoá lịch học theo ID
+//----------------------- Xoá lịch học theo ID ---------------------------------------
 exports.deleteSchedule = async (req, res) => {
   try {
     const id = req.params.id;
+
     const deleted = await Schedule.destroy({ where: { id } });
 
     if (!deleted) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy lịch học để xoá" });
+      return response.notFound(res, "Không tìm thấy lịch học để xoá");
     }
 
-    res.status(200).json({ message: "Xoá lịch học thành công" });
+    return response.success(res, "Xoá lịch học thành công");
   } catch (error) {
-    res.status(500).json({ message: "Lỗi khi xoá lịch học", error });
+    return response.error(res);
   }
 };
